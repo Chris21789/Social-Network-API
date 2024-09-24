@@ -168,6 +168,8 @@ const reactions = [
     "Such a beautiful thought, thank you for sharing.",
 ];
 
+const getRandomIndex = (arr) => Math.floor(Math.random() * arr.length);
+
 const getRandomArrItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 const getRandomNum = (min, max) => {return Math.floor(Math.random() * (max - min + 1)) + min;};
@@ -177,30 +179,31 @@ const getRandomUsername = () => {
     return username.charAt(0).toUpperCase() + username.slice(1).toLowerCase();
 };
 
+const getRandomThought = () => {
+    const thought = `${getRandomArrItem(thoughts)}`;
+    return thought;
+}
+
 const getRandomThoughts = (int) => {
     let results = [];
     for (let i = 0; i < int; i++) {
         results.push({
             thoughtText: getRandomArrItem(thoughts),
             username: getRandomUsername(),
-            reactions: [...getRandomReactions(getRandomNum(0, 3))],
-        });
+        });        
     }
     return results;
 };
 
 const getRandomReactions = (int) => {
-    if (int === 1) {
-        return getRandomArrItem(reactions);
-    }
     let results = [];
     for (let i = 0; i < int; i++) {
         results.push({
             reactionBody: getRandomArrItem(reactions),
             username: getRandomUsername(),
-        });
+        });      
     }
     return results;
 }
 
-module.exports = { getRandomUsername, getRandomThoughts }
+module.exports = { getRandomIndex, getRandomArrItem, getRandomNum, getRandomUsername, getRandomThought, getRandomThoughts, getRandomReactions }

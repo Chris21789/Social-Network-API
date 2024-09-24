@@ -1,6 +1,6 @@
 const connection = require('../config/connection');
 const { User, Thought } = require('../models');
-const { getRandomUsername, getRandomThoughts } = require('./data');
+const { getRandomIndex, getRandomArrItem, getRandomNum, getRandomUsername, getRandomThought, getRandomThoughts, getRandomReactions } = require('./data');
 
 connection.on('error', (err) => err);
 
@@ -17,27 +17,58 @@ connection.once('open', async () => {
     }
 
     const users = [];
-    const thoughts = getRandomThoughts(15);
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
         const username = getRandomUsername();
-        const email = ;
-        const thoughts = ;
-        const friends = ;
+        const email = `${username}@social.com`;
 
         users.push({
             username,
             email,
-            thoughts,
-            friends,
+        });
+    }
+    
+    const usersData = await User.create(users);
+
+    const thoughts = [];
+
+    for (let i = 0; i < 35; i++) {
+        const reactions = getRandomReactions(getRandomNum(1, 3));
+        const thoughtText = getRandomThought();
+        const username = usersData[getRandomIndex(usersData)].username;
+
+        thoughts.push({
+            thoughtText,
+            reactions,
+            username,
         });
     }
 
-    await User.insertMany(users);
-    await Thought.insertMany(thoughts);
+    const thoughtData = await Thought.create(thoughts);
+
+    for (let user of usersData) {
+        user.thoughts = thoughtData
+        .filter(thought => thought.username === user.username)
+        .map(thought => thought._id);
+        await user.save();
+    }
+
+    for (let user of usersData) {
+        const friends = [];
+        const friendCount = getRandomNum(1, 3);
+
+        while (friends.length < friendCount) {
+            const randomUser = usersData[getRandomIndex(usersData)];
+            if (randomUser._id.toString() !== user._id.toString() && !friends.includes(randomUser._id)) {
+                friends.push(randomUser._id);
+            }
+        }
+        user.friends = friends;
+        await user.save();
+    }
 
     console.table(users);
     console.table(thoughts);
-    console.into('Seeding complete! 🌱');
+    console.log('Seeding complete! 🌱');
     process.exit(0);
 });
