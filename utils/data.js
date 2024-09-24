@@ -1,5 +1,3 @@
-const { response } = require("express");
-
 const nameSegments = [
     "Star",
     "Pixel",
@@ -174,10 +172,10 @@ const getRandomArrItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 const getRandomNum = (min, max) => {return Math.floor(Math.random() * (max - min + 1)) + min;};
 
-const getRandomUsername = () =>
-    `${getRandomArrItem(nameSegments)}${getRandomArrItem(
-        nameSegments
-    )}${getRandomArrItem(nameSegments)}`;
+const getRandomUsername = () => {
+    const username = `${getRandomArrItem(nameSegments)}${getRandomArrItem(nameSegments)}${getRandomArrItem(nameSegments)}`;
+    return username.charAt(0).toUpperCase() + username.slice(1).toLowerCase();
+};
 
 const getRandomThoughts = (int) => {
     let results = [];
@@ -205,4 +203,4 @@ const getRandomReactions = (int) => {
     return results;
 }
 
-module.exports = { getRandomUsername, getRandomThoughts, getRandomReactions }
+module.exports = { getRandomUsername, getRandomThoughts }

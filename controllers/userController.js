@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, Thought } = require("../models");
 
 module.exports = {
     async getUsers(req, res) {
@@ -12,12 +12,12 @@ module.exports = {
     async getSingleUser(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.userId })
-            .select('-__v')
-            .populate('thoughts')
-            .populate('friends');
+                .select("-__v")
+                .populate("thoughts")
+                .populate("friends");
 
-            if(!user) {
-                return res.status(404).json({ message: 'No user with that ID' });
+            if (!user) {
+                return res.status(404).json({ message: "No user found with that ID!" });
             }
 
             res.json(user);
@@ -26,39 +26,79 @@ module.exports = {
         }
     },
     async createUser(req, res) {
-        try {  
+        try {
             const user = await User.create(req.body);
             res.json(user);
         } catch (err) {
             res.status(500).json(err);
         }
     },
-    // async updateUser(req, res) {
-    //     try {
+    async updateUser(req, res) {
+        try {
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $set: req.body },
+                { runValidators: true, new: true }
+            );
 
-    //     } catch (err) {
+            if (!user) {
+                return res.status(404).json({ message: "No user found with that ID!" });
+            }
 
-    //     }
-    // },
-    // async deleteUser(req, res) {
-    //     try {
+            res.json(user);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    },
+    async deleteUser(req, res) {
+        try {
+            const user = await User.findOneAndDelete({ _id: req.params.userId });
 
-    //     } catch (err) {
+            if (!user) {
+                res.status(404).json({ message: "No user found with that ID!" });
+            }
 
-    //     }
-    // },
-    // async addFriend(req, res) {
-    //     try {
+            await Thought.deleteMany({ _id: { $in: user.thoughts } });
+            await User.deleteMany({ _id: { $in: user.friends } });
 
-    //     } catch (err) {
+            res.json(user);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+    async addFriend(req, res) {
+        try {
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $addToSet: { friends: req.params.friendId } },
+                { new: true }
+            );
 
-    //     }
-    // },
-    // async deleteFriend(req, res) {
-    //     try {
+            if (!user) {
+                return res.status(404).json({ message: "No user found with that ID!" });
+            }
 
-    //     } catch (err) {
+            res.json(user);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+    async deleteFriend(req, res) {
+        try {
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $pull: { friends: req.params.friendId } },
+                { new: true }
+            );
 
-    //     }
-    // },
+            if (!user) {
+                return res.status(404).json({ message: "No user found with that ID!" });
+            }
+
+            res.json(user);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
 };
