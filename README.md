@@ -30,7 +30,7 @@ In main termainl run:
 
 ## Video
 
-[An example video about using this repo.]()
+[An example video about using this repo.](https://watch.screencastify.com/v/t3uUxLAe21RZ3gLdihbH)
 
 ## Contributing
 
